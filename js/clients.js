@@ -1,0 +1,12 @@
+// صفحة: clients — عملاء جدد (شيت)
+let CLR=[],CQ='',CE='';
+async function pClients(){const ad=isA();A.innerHTML=`<div class=pg><h2 class=rv>${t('newClients')}</h2><p class=mu style="margin-top:.3rem">${t('clHint')} ${ad?'':t('clMine')}</p><div class=ctool><input id=cq class=gl placeholder="${t('searchC')}" value="${esc(CQ)}">${ad?`<select id=ce class=gl><option value="">${t('allEmp')}</option></select>`:''}<button class=f id=cx>${svg('down',16)} ${t('dlXlsx')}</button></div><div id=cb><div class=ld style="margin:3rem auto"></div></div></div>`;
+ if(ad){const u=await api('users'),sel=$('#ce');(u.users||[]).forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.name;sel.append(o)});sel.value=CE;sel.onchange=()=>{CE=sel.value;loadCl()}}
+ $('#cq').oninput=e=>{CQ=e.target.value;drawCl()};$('#cx').onclick=xlCl;await loadCl()}
+async function loadCl(){const r=await api('clients',{emp:CE});CLR=r.cl||[];drawCl()}
+const visCl=()=>{const q=CQ.trim().toLowerCase();return CLR.filter(c=>!q||[c.name,c.phone,c.email,c.dev,c.note,c.by].join(' ').toLowerCase().includes(q))};
+function drawCl(){const ad=isA(),rows=visCl();$('#cb').innerHTML=rows.length?`<div class=tbw><table class=t2><thead><tr><th>#</th><th>${t('name')}</th><th>${t('phone')}</th><th>${t('colMail')}</th><th>${t('colNeed')}</th><th>${t('colDev')}</th>${ad?`<th>${t('colEmp')}</th>`:''}<th>${t('colDate')}</th></tr></thead><tbody>${rows.map((c,i)=>`<tr><td class=n>${i+1}</td><td><b>${esc(c.name)}</b></td><td><a href="https://wa.me/${esc(c.phone)}" target=_blank rel=noopener dir=ltr>+${esc(c.phone)}</a></td><td>${c.email?`<a href="mailto:${esc(c.email)}" dir=ltr>${esc(c.email)}</a>`:''}</td><td style="white-space:pre-wrap">${esc(c.note)}</td><td>${esc(c.dev)}</td>${ad?`<td>${esc(c.by)}</td>`:''}<td style="white-space:nowrap">${new Date(c.at).toLocaleString(L)}</td></tr>`).join('')}</tbody></table></div><p class=mu style="margin-top:.6rem">${rows.length} ${t('newClients')}</p>`:`<p class=mu style="margin-top:1.5rem">${t('noCl')}</p>`;$('#cx').disabled=!rows.length}
+async function xlCl(){const ad=isA(),rows=visCl(),head=['#',t('name'),t('phone'),t('colMail'),t('colNeed'),t('colDev')].concat(ad?[t('colEmp')]:[],[t('colDate')]);
+ const data=[head].concat(rows.map((c,i)=>[i+1,c.name,c.phone,c.email,c.note,c.dev].concat(ad?[c.by]:[],[new Date(c.at).toLocaleString('en-GB')])));
+ dlBlob(await makeXlsx(data,[6,22,18,26,34,20].concat(ad?[18]:[],[20])),'clients-'+new Date().toISOString().slice(0,10)+'.xlsx')}
+bootPage(pClients,'clients');
